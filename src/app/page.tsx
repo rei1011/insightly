@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import { CompensationTable } from '@/components/CompensationTable/CompensationTable';
-import { getCompensationData } from '@/api/compensation';
+import Link from "next/link";
+import { CompensationTable } from "@/components/CompensationTable/CompensationTable";
+import { getCompensationData } from "@/api/compensation";
 
 type HomeProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -11,13 +11,18 @@ export default async function Home({ searchParams }: HomeProps) {
   const pageParam = params.page;
   const page = Math.max(
     1,
-    parseInt(Array.isArray(pageParam) ? pageParam[0] : pageParam ?? '1', 10) || 1
+    parseInt(
+      Array.isArray(pageParam) ? pageParam[0] : (pageParam ?? "1"),
+      10
+    ) || 1
   );
 
-  const { data, total, page: currentPage, limit, totalPages } = await getCompensationData(
-    page,
-    1000
-  );
+  const {
+    data,
+    total,
+    page: currentPage,
+    totalPages,
+  } = await getCompensationData(page, 1000);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -44,7 +49,8 @@ export default async function Home({ searchParams }: HomeProps) {
               </span>
             )}
             <span className="text-sm text-[var(--foreground)]/70">
-              {currentPage} / {totalPages} ページ（全 {total.toLocaleString()} 件）
+              {currentPage} / {totalPages} ページ（全 {total.toLocaleString()}{" "}
+              件）
             </span>
             {currentPage < totalPages ? (
               <Link
