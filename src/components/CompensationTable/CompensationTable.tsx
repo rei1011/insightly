@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export type CompensationRecord = {
   id: string;
   companyName: string;
@@ -12,10 +14,16 @@ export type CompensationRecord = {
   stockOptions: number | null;
 };
 
+export type SortOrder = 'asc' | 'desc';
+
 export type CompensationTableProps = {
   data: CompensationRecord[];
   /** 空データ時の表示メッセージ */
   emptyMessage?: string;
+  /** 年収ソートの現在の並び順（指定時はヘッダーをクリック可能に） */
+  annualSalarySortOrder?: SortOrder | null;
+  /** 年収ソート切り替え時のリンク先（例: ?sort=annualSalary&order=asc） */
+  annualSalarySortHref?: string;
 };
 
 function formatCurrency(value: number | null): string {
@@ -35,6 +43,8 @@ function formatAge(value: number): string {
 export const CompensationTable = ({
   data,
   emptyMessage = 'データがありません',
+  annualSalarySortOrder = null,
+  annualSalarySortHref,
 }: CompensationTableProps) => {
   if (data.length === 0) {
     return (
@@ -65,7 +75,17 @@ export const CompensationTable = ({
               平均残業時間（月間）
             </th>
             <th className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">
-              年収
+              {annualSalarySortHref ? (
+                <Link
+                  href={annualSalarySortHref}
+                  className="inline-flex items-center gap-1 hover:underline"
+                >
+                  年収
+                  {annualSalarySortOrder === 'asc' ? ' ↑' : ' ↓'}
+                </Link>
+              ) : (
+                '年収'
+              )}
             </th>
             <th className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">
               ベースの給与

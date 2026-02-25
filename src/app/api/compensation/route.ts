@@ -7,15 +7,23 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const pageParam = searchParams.get('page');
   const limitParam = searchParams.get('limit');
+  const sortParam = searchParams.get('sort');
+  const orderParam = searchParams.get('order');
 
   const page = Math.max(1, parseInt(pageParam ?? String(DEFAULT_PAGE), 10) || DEFAULT_PAGE);
   const limit = Math.max(1, Math.min(10000, parseInt(limitParam ?? String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT));
   const skip = (page - 1) * limit;
 
+  const order: 'asc' | 'desc' = orderParam === 'asc' ? 'asc' : 'desc';
+  const orderBy =
+    sortParam === 'annualSalary'
+      ? { annualSalary: order }
+      : { annualSalary: 'desc' as const };
+
   const [salaries, total] = await Promise.all([
     prisma.salary.findMany({
       include: { company: true, occupation: true },
-      orderBy: { annualSalary: 'desc' },
+      orderBy,
       skip,
       take: limit,
     }),

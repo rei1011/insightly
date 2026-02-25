@@ -1,4 +1,4 @@
-import type { CompensationRecord } from '@/components/CompensationTable/CompensationTable';
+import type { CompensationRecord } from "@/components/CompensationTable/CompensationTable";
 
 function getBaseUrl(): string {
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
@@ -19,13 +19,22 @@ export type CompensationResponse = {
  * GET /api/compensation を呼び出してデータを取得する。
  * @param page - ページ番号（1始まり）
  * @param limit - 1ページあたりの件数（デフォルト1000）
+ * @param sort - ソート項目（例: annualSalary）
+ * @param order - ソート順（asc / desc）
  */
 export async function getCompensationData(
   page: number = 1,
-  limit: number = 1000
+  limit: number = 1000,
+  sort?: string,
+  order?: string
 ): Promise<CompensationResponse> {
-  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+  if (sort) params.set("sort", sort);
+  if (order) params.set("order", order);
   const res = await fetch(`${getBaseUrl()}/api/compensation?${params}`);
-  if (!res.ok) throw new Error('Failed to fetch compensation data');
+  if (!res.ok) throw new Error("Failed to fetch compensation data");
   return res.json();
 }
