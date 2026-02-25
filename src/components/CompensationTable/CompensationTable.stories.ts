@@ -17,6 +17,7 @@ type Story = StoryObj<typeof meta>;
 
 const sampleData: CompensationRecord[] = [
   {
+    id: 'salary-1',
     companyName: '株式会社サンプルA',
     jobTitle: 'ソフトウェアエンジニア',
     age: 32,
@@ -29,6 +30,7 @@ const sampleData: CompensationRecord[] = [
     stockOptions: null,
   },
   {
+    id: 'salary-2',
     companyName: '株式会社サンプルB',
     jobTitle: 'プロダクトマネージャー',
     age: 38,
@@ -41,6 +43,7 @@ const sampleData: CompensationRecord[] = [
     stockOptions: 50,
   },
   {
+    id: 'salary-3',
     companyName: '株式会社サンプルC',
     jobTitle: 'データサイエンティスト',
     age: 28,
@@ -74,6 +77,7 @@ export const EmptyWithCustomMessage: Story = {
 };
 
 const manyRowsData: CompensationRecord[] = Array.from({ length: 20 }, (_, i) => ({
+  id: `salary-${i + 1}`,
   companyName: `株式会社サンプル${String.fromCharCode(65 + (i % 5))}`,
   jobTitle: ['ソフトウェアエンジニア', 'プロダクトマネージャー', 'データサイエンティスト', 'デザイナー', 'QAエンジニア'][i % 5],
   age: 25 + (i % 20),

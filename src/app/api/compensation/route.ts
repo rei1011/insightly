@@ -1,44 +1,46 @@
-import type { CompensationRecord } from '@/components/CompensationTable/CompensationTable';
+import { prisma } from '@/lib/prisma';
 
-const data: CompensationRecord[] = [
-  {
-    companyName: '株式会社サンプルA',
-    jobTitle: 'ソフトウェアエンジニア',
-    age: 32,
-    grade: 'シニア',
-    avgOvertimeHours: 20,
-    annualSalary: 800,
-    baseSalary: 600,
-    bonusIncentive: 150,
-    rsu: 50,
-    stockOptions: null,
-  },
-  {
-    companyName: '株式会社サンプルB',
-    jobTitle: 'プロダクトマネージャー',
-    age: 38,
-    grade: 'スタッフ',
-    avgOvertimeHours: 35,
-    annualSalary: 1200,
-    baseSalary: 900,
-    bonusIncentive: 200,
-    rsu: 100,
-    stockOptions: 50,
-  },
-  {
-    companyName: '株式会社サンプルC',
-    jobTitle: 'データサイエンティスト',
-    age: 28,
-    grade: 'ミドル',
-    avgOvertimeHours: 15,
-    annualSalary: 650,
-    baseSalary: 500,
-    bonusIncentive: null,
-    rsu: null,
-    stockOptions: null,
-  },
-];
+const DEFAULT_LIMIT = 1000;
+const DEFAULT_PAGE = 1;
 
-export async function GET() {
-  return Response.json(data);
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const pageParam = searchParams.get('page');
+  const limitParam = searchParams.get('limit');
+
+  const page = Math.max(1, parseInt(pageParam ?? String(DEFAULT_PAGE), 10) || DEFAULT_PAGE);
+  const limit = Math.max(1, Math.min(10000, parseInt(limitParam ?? String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT));
+  const skip = (page - 1) * limit;
+
+  const [salaries, total] = await Promise.all([
+    prisma.salary.findMany({
+      include: { company: true, occupation: true },
+      orderBy: { annualSalary: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.salary.count(),
+  ]);
+
+  const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
+
+  return Response.json({
+    data: salaries.map((s) => ({
+      id: s.id,
+      companyName: s.company.name,
+      jobTitle: s.occupation.name,
+      age: s.age,
+      grade: s.grade,
+      avgOvertimeHours: s.overtimeHours ? Number(s.overtimeHours) : null,
+      annualSalary: Number(s.annualSalary),
+      baseSalary: Number(s.baseSalary),
+      bonusIncentive: s.bonus ? Number(s.bonus) : null,
+      rsu: s.rsu ? Number(s.rsu) : null,
+      stockOptions: s.stockOptions ? Number(s.stockOptions) : null,
+    })),
+    total,
+    page,
+    limit,
+    totalPages,
+  });
 }

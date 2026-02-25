@@ -1,9 +1,10 @@
 export type CompensationRecord = {
+  id: string;
   companyName: string;
   jobTitle: string;
   age: number;
-  grade: string;
-  avgOvertimeHours: number;
+  grade: string | null;
+  avgOvertimeHours: number | null;
   annualSalary: number;
   baseSalary: number;
   bonusIncentive: number | null;
@@ -22,7 +23,8 @@ function formatCurrency(value: number | null): string {
   return `${value.toLocaleString('ja-JP')}万円`;
 }
 
-function formatHours(value: number): string {
+function formatHours(value: number | null): string {
+  if (value === null || value === undefined) return '-';
   return `${value}時間`;
 }
 
@@ -80,9 +82,9 @@ export const CompensationTable = ({
           </tr>
         </thead>
         <tbody>
-          {data.map((record, index) => (
+          {data.map((record) => (
             <tr
-              key={index}
+              key={record.id}
               className="border-b border-[var(--foreground)]/10 transition-colors hover:bg-[var(--foreground)]/5 [&:nth-child(even)]:bg-[var(--foreground)]/[0.02]"
             >
               <td className="px-4 py-3 text-[var(--foreground)]">
