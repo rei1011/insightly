@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: insightly
+      POSTGRES_PASSWORD: insightly
+      POSTGRES_DB: insightly
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
