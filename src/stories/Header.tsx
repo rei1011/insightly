@@ -1,5 +1,4 @@
 import { Button } from './Button';
-import './header.css';
 
 type User = {
   name: string;
@@ -14,8 +13,8 @@ export interface HeaderProps {
 
 export const Header = ({ user, onLogin, onLogout, onCreateAccount }: HeaderProps) => (
   <header>
-    <div className="storybook-header">
-      <div>
+    <div className="flex justify-between items-center border-b border-black/10 py-4 px-5 font-sans [&_button+button]:ml-2.5">
+      <div className="[&_svg]:inline-block [&_svg]:align-top [&_h1]:inline-block [&_h1]:align-top [&_h1]:my-1.5 [&_h1]:ml-2.5 [&_h1]:font-bold [&_h1]:text-xl [&_h1]:leading-none">
         <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
           <g fill="none" fillRule="evenodd">
             <path
@@ -37,7 +36,7 @@ export const Header = ({ user, onLogin, onLogout, onCreateAccount }: HeaderProps
       <div>
         {user ? (
           <>
-            <span className="welcome">
+            <span className="mr-2.5 text-[#333] text-sm">
               Welcome, <b>{user.name}</b>!
             </span>
             <Button size="small" onClick={onLogout} label="Log out" />

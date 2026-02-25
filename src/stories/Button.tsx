@@ -1,5 +1,3 @@
-import './button.css';
-
 export interface ButtonProps {
   /** Is this the principal call to action on the page? */
   primary?: boolean;
@@ -13,6 +11,12 @@ export interface ButtonProps {
   onClick?: () => void;
 }
 
+const sizeClasses = {
+  small: 'py-2.5 px-4 text-xs',
+  medium: 'py-[11px] px-5 text-sm',
+  large: 'py-3 px-6 text-base',
+};
+
 /** Primary UI component for user interaction */
 export const Button = ({
   primary = false,
@@ -21,19 +25,20 @@ export const Button = ({
   label,
   ...props
 }: ButtonProps) => {
-  const mode = primary ? 'storybook-button--primary' : 'storybook-button--secondary';
   return (
     <button
       type="button"
-      className={['storybook-button', `storybook-button--${size}`, mode].join(' ')}
+      className={[
+        'inline-block cursor-pointer border-0 rounded-[3em] font-bold leading-none font-sans',
+        sizeClasses[size],
+        primary
+          ? 'bg-[#555ab9] text-white'
+          : 'bg-transparent text-[#333] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.15)]',
+      ].join(' ')}
+      style={backgroundColor ? { backgroundColor } : undefined}
       {...props}
     >
       {label}
-      <style jsx>{`
-        button {
-          background-color: ${backgroundColor};
-        }
-      `}</style>
     </button>
   );
 };

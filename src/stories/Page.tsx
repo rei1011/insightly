@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { Header } from './Header';
-import './page.css';
 
 type User = {
   name: string;
@@ -19,7 +18,7 @@ export const Page: React.FC = () => {
         onCreateAccount={() => setUser({ name: 'Jane Doe' })}
       />
 
-      <section className="storybook-page">
+      <section className="mx-auto py-12 px-5 max-w-[600px] text-[#333] text-sm leading-6 font-sans [&_h2]:inline-block [&_h2]:align-top [&_h2]:m-0 [&_h2]:mb-1 [&_h2]:font-bold [&_h2]:text-3xl [&_h2]:leading-none [&_p]:my-4 [&_a]:text-inherit [&_ul]:my-4 [&_ul]:pl-8 [&_li]:mb-2">
         <h2>Pages in Storybook</h2>
         <p>
           We recommend building UIs with a{' '}
@@ -36,7 +35,7 @@ export const Page: React.FC = () => {
         <ul>
           <li>
             Use a higher-level connected component. Storybook helps you compose such data from the
-            "args" of child component stories
+            &quot;args&quot; of child component stories
           </li>
           <li>
             Assemble data in the page component from your services. You can mock these services out
@@ -54,8 +53,11 @@ export const Page: React.FC = () => {
           </a>
           .
         </p>
-        <div className="tip-wrapper">
-          <span className="tip">Tip</span> Adjust the width of the canvas with the{' '}
+        <div className="mt-10 mb-10 text-[13px] leading-5 [&_svg]:inline-block [&_svg]:align-top [&_svg]:mt-0.5 [&_svg]:mr-1 [&_svg]:w-3 [&_svg]:h-3 [&_svg_path]:fill-[#1ea7fd]">
+          <span className="inline-block align-top mr-2.5 rounded-full bg-[#e7fdd8] py-1 px-3 text-[#357a14] font-bold text-[11px] leading-3">
+            Tip
+          </span>
+          Adjust the width of the canvas with the{' '}
           <svg width="10" height="10" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
             <g fill="none" fillRule="evenodd">
               <path
