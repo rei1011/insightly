@@ -11,15 +11,36 @@ datasource db {
 }
 
 model Company {
-  id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name String
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  salaries  Salary[]
 
   @@map("company")
 }
 
 model Occupation {
-  id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name String
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  salaries  Salary[]
 
   @@map("occupation")
+}
+
+model Salary {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId     String   @map("company_id") @db.Uuid
+  occupationId  String   @map("occupation_id") @db.Uuid
+  age           Int
+  grade         String?
+  overtimeHours Decimal? @map("overtime_hours") @db.Decimal(10, 2)
+  annualSalary  Decimal  @map("annual_salary") @db.Decimal(12, 2)
+  baseSalary    Decimal  @map("base_salary") @db.Decimal(12, 2)
+  bonus         Decimal? @db.Decimal(12, 2)
+  stockOptions  Decimal? @map("stock_options") @db.Decimal(12, 2)
+  rsu           Decimal? @db.Decimal(12, 2)
+
+  company    Company    @relation(fields: [companyId], references: [id])
+  occupation Occupation @relation(fields: [occupationId], references: [id])
+
+  @@map("salary")
 }
