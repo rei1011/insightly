@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Company {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id        Int      @id
   name      String   @unique
   salaries  Salary[]
 
@@ -27,8 +27,8 @@ model Occupation {
 }
 
 model Salary {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId     String   @map("company_id") @db.Uuid
+  id            String   @id
+  companyId     Int      @map("company_id")
   occupationId  String   @map("occupation_id") @db.Uuid
   age           Int
   grade         String?

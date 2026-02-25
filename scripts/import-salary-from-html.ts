@@ -17,6 +17,8 @@ const prisma = new PrismaClient();
 const DEFAULT_PATH = path.join(process.cwd(), "salary");
 
 interface ParsedSalaryCard {
+  companyId: number;
+  salaryId: string;
   companyName: string;
   occupationName: string;
   age: number;
@@ -56,6 +58,26 @@ function parseSalaryCard(
   card: Element
 ): ParsedSalaryCard | null {
   const $card = $(card);
+
+  // salary ID: カードの href="/salaries/{id}" から抽出
+  const cardHref = $card.attr("href") ?? "";
+  const salaryIdMatch = cardHref.match(/\/salaries\/([^/]+)/);
+  const salaryId = salaryIdMatch ? salaryIdMatch[1] : "";
+  if (!salaryId) return null;
+
+  // company ID: カード内または親要素内の a[href^="/corporations/"] から抽出
+  // ネストされたaタグはHTMLとして無効なため、パーサが構造を変える場合がある
+  let corpLink =
+    $card.find('a[href^="/corporations/"]').first().attr("href") ?? "";
+  if (!corpLink) {
+    corpLink =
+      $card.parent().find('a[href^="/corporations/"]').first().attr("href") ??
+      "";
+  }
+  const companyIdMatch = corpLink.match(/\/corporations\/(\d+)/);
+  const companyId = companyIdMatch ? parseInt(companyIdMatch[1], 10) : NaN;
+  if (isNaN(companyId)) return null;
+
   const ariaLabel = $card.attr("aria-label") ?? "";
   const cardText = $card.text();
 
@@ -158,6 +180,8 @@ function parseSalaryCard(
   }
 
   return {
+    companyId,
+    salaryId,
     companyName,
     occupationName,
     age,
@@ -256,12 +280,12 @@ async function main() {
 
     for (const card of cards) {
       try {
-        let company = await prisma.company.findFirst({
-          where: { name: card.companyName },
+        let company = await prisma.company.findUnique({
+          where: { id: card.companyId },
         });
         if (!company) {
           company = await prisma.company.create({
-            data: { name: card.companyName },
+            data: { id: card.companyId, name: card.companyName },
           });
         }
 
@@ -274,12 +298,8 @@ async function main() {
           });
         }
 
-        const existing = await prisma.salary.findFirst({
-          where: {
-            companyId: company.id,
-            occupationId: occupation.id,
-            age: card.age,
-          },
+        const existing = await prisma.salary.findUnique({
+          where: { id: card.salaryId },
         });
 
         if (existing) {
@@ -289,6 +309,7 @@ async function main() {
 
         await prisma.salary.create({
           data: {
+            id: card.salaryId,
             companyId: company.id,
             occupationId: occupation.id,
             age: card.age,
