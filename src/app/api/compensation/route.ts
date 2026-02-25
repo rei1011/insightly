@@ -9,10 +9,19 @@ export async function GET(request: Request) {
   const limitParam = searchParams.get('limit');
   const sortParam = searchParams.get('sort');
   const orderParam = searchParams.get('order');
+  const occupationsParam = searchParams.get('occupations');
 
   const page = Math.max(1, parseInt(pageParam ?? String(DEFAULT_PAGE), 10) || DEFAULT_PAGE);
   const limit = Math.max(1, Math.min(10000, parseInt(limitParam ?? String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT));
   const skip = (page - 1) * limit;
+
+  const occupationIds = occupationsParam
+    ? occupationsParam.split(',').map((id) => id.trim()).filter(Boolean)
+    : undefined;
+
+  const where = occupationIds?.length
+    ? { occupationId: { in: occupationIds } }
+    : undefined;
 
   const order: 'asc' | 'desc' = orderParam === 'asc' ? 'asc' : 'desc';
   const orderBy =
@@ -22,12 +31,13 @@ export async function GET(request: Request) {
 
   const [salaries, total] = await Promise.all([
     prisma.salary.findMany({
+      where,
       include: { company: true, occupation: true },
       orderBy,
       skip,
       take: limit,
     }),
-    prisma.salary.count(),
+    prisma.salary.count({ where }),
   ]);
 
   const totalPages = total === 0 ? 0 : Math.ceil(total / limit);

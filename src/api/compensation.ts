@@ -21,12 +21,14 @@ export type CompensationResponse = {
  * @param limit - 1ページあたりの件数（デフォルト1000）
  * @param sort - ソート項目（例: annualSalary）
  * @param order - ソート順（asc / desc）
+ * @param occupationIds - 絞り込む職種IDの配列（複数指定可）
  */
 export async function getCompensationData(
   page: number = 1,
   limit: number = 1000,
   sort?: string,
-  order?: string
+  order?: string,
+  occupationIds?: string[]
 ): Promise<CompensationResponse> {
   const params = new URLSearchParams({
     page: String(page),
@@ -34,6 +36,7 @@ export async function getCompensationData(
   });
   if (sort) params.set("sort", sort);
   if (order) params.set("order", order);
+  if (occupationIds?.length) params.set("occupations", occupationIds.join(","));
   const res = await fetch(`${getBaseUrl()}/api/compensation?${params}`);
   if (!res.ok) throw new Error("Failed to fetch compensation data");
   return res.json();

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { CompensationTable } from "@/components/CompensationTable/CompensationTable";
+import { JobFilter } from "@/components/JobFilter/JobFilter";
 import { getCompensationData } from "@/api/compensation";
+import { getOccupations } from "@/api/occupations";
 
 type HomeProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -11,6 +13,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const pageParam = params.page;
   const sortParam = params.sort;
   const orderParam = params.order;
+  const occupationsParam = params.occupations;
 
   const page = Math.max(
     1,
@@ -26,16 +29,23 @@ export default async function Home({ searchParams }: HomeProps) {
     | "desc"
     | undefined;
 
-  const {
-    data,
-    total,
-    page: currentPage,
-    totalPages,
-  } = await getCompensationData(page, 1000, sort, order);
+  const occupationIds = occupationsParam
+    ? (Array.isArray(occupationsParam) ? occupationsParam[0] : occupationsParam)
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean)
+    : undefined;
+
+  const [occupations, { data, total, page: currentPage, totalPages }] =
+    await Promise.all([
+      getOccupations(),
+      getCompensationData(page, 1000, sort, order, occupationIds),
+    ]);
 
   const baseQuery = new URLSearchParams();
   if (sort) baseQuery.set("sort", sort);
   if (order) baseQuery.set("order", order);
+  if (occupationIds?.length) baseQuery.set("occupations", occupationIds.join(","));
 
   const annualSalarySortOrder =
     sort === "annualSalary" ? order ?? "desc" : null;
@@ -45,6 +55,7 @@ export default async function Home({ searchParams }: HomeProps) {
       : "desc";
   const sortQuery = new URLSearchParams({ sort: "annualSalary", order: nextOrder });
   sortQuery.set("page", "1");
+  if (occupationIds?.length) sortQuery.set("occupations", occupationIds.join(","));
   const annualSalarySortHref = `?${sortQuery.toString()}`;
 
   return (
@@ -53,6 +64,10 @@ export default async function Home({ searchParams }: HomeProps) {
         <h1 className="mb-8 text-2xl font-semibold tracking-tight text-black dark:text-zinc-50">
           報酬一覧
         </h1>
+        <JobFilter
+          occupations={occupations}
+          selectedIds={occupationIds ?? []}
+        />
         <CompensationTable
           data={data}
           annualSalarySortOrder={annualSalarySortOrder}
