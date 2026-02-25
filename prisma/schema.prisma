@@ -12,7 +12,7 @@ datasource db {
 
 model Company {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String
+  name      String   @unique
   salaries  Salary[]
 
   @@map("company")
@@ -20,7 +20,7 @@ model Company {
 
 model Occupation {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String
+  name      String   @unique
   salaries  Salary[]
 
   @@map("occupation")

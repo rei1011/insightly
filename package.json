@@ -14,10 +14,12 @@
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "import:salary": "tsx scripts/import-salary-from-html.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "cheerio": "^1.2.0",
     "next": "16.1.6",
     "prisma": "^5.22.0",
     "react": "19.2.3",
@@ -44,6 +46,7 @@
     "prettier": "^3.8.1",
     "storybook": "^10.2.12",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"
