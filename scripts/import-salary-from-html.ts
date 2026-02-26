@@ -91,10 +91,11 @@ function parseSalaryCard(
   const age = ageMatch ? parseInt(ageMatch[1], 10) : 0;
   if (age < 18 || age > 70) return null;
 
-  // 職種: 職種ラベル直後のテキスト、またはカード内の候補から抽出
+  // 職種: 職種ラベル直後のテキストを抽出（コロンあり/なし両対応）
+  // カード形式は「職種コンサルタントグレード...」のようにコロンなしの場合がある
   let occupationName = "不明";
   const occupationMatch = cardText.match(
-    /職種\s*[：:]\s*([^\s年収基本給賞与残業]+)/
+    /職種\s*[：:]?\s*([^グレード年収基本給賞与残業\s]+)/
   );
   if (occupationMatch) {
     occupationName = occupationMatch[1].trim();
@@ -108,6 +109,11 @@ function parseSalaryCard(
       "デザイナー",
       "PM",
       "開発者",
+      "コンサルタント",
+      "営業",
+      "企画・マーケティング",
+      "ITエンジニア",
+      "アナリスト",
     ];
     for (const occ of occupationCandidates) {
       if (cardText.includes(occ)) {
@@ -117,20 +123,16 @@ function parseSalaryCard(
     }
   }
 
-  // グレード
-  const gradePatterns = [
-    "シニア",
-    "ミドル",
-    "ジュニア",
-    "スタッフ",
-    "マネージャー",
-    "リード",
-  ];
+  // グレード: グレードラベル直後のテキストを正規表現で抽出
+  // 「Managing Director」「Senior Analyst」等の英語表記や「なし」にも対応
   let grade: string | null = null;
-  for (const g of gradePatterns) {
-    if (cardText.includes(g)) {
-      grade = g;
-      break;
+  const gradeMatch = cardText.match(
+    /グレード\s*[：:]?\s*([^平均年収在籍社会人]+?)(?=平均|在籍|社会人|年収|$)/
+  );
+  if (gradeMatch) {
+    const raw = gradeMatch[1].trim();
+    if (raw && raw !== "なし") {
+      grade = raw;
     }
   }
 

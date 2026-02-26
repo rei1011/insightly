@@ -1,4 +1,8 @@
+'use client';
+
 import Link from 'next/link';
+
+const OPENMONEY_SALARY_BASE = 'https://openmoney.jp/salaries';
 
 export type CompensationRecord = {
   id: string;
@@ -102,43 +106,59 @@ export const CompensationTable = ({
           </tr>
         </thead>
         <tbody>
-          {data.map((record) => (
-            <tr
-              key={record.id}
-              className="border-b border-[var(--foreground)]/10 transition-colors hover:bg-[var(--foreground)]/5 [&:nth-child(even)]:bg-[var(--foreground)]/[0.02]"
-            >
-              <td className="px-4 py-3 text-[var(--foreground)]">
-                {record.companyName}
-              </td>
-              <td className="px-4 py-3 text-[var(--foreground)]">
-                {record.jobTitle}
-              </td>
-              <td className="px-4 py-3 text-right text-[var(--foreground)]">
-                {formatAge(record.age)}
-              </td>
-              <td className="px-4 py-3 text-[var(--foreground)]">
-                {record.grade}
-              </td>
-              <td className="px-4 py-3 text-right text-[var(--foreground)]">
-                {formatHours(record.avgOvertimeHours)}
-              </td>
-              <td className="px-4 py-3 text-right text-[var(--foreground)]">
-                {formatCurrency(record.annualSalary)}
-              </td>
-              <td className="px-4 py-3 text-right text-[var(--foreground)]">
-                {formatCurrency(record.baseSalary)}
-              </td>
-              <td className="px-4 py-3 text-right text-[var(--foreground)]">
-                {formatCurrency(record.bonusIncentive)}
-              </td>
-              <td className="px-4 py-3 text-right text-[var(--foreground)]">
-                {formatCurrency(record.rsu)}
-              </td>
-              <td className="px-4 py-3 text-right text-[var(--foreground)]">
-                {formatCurrency(record.stockOptions)}
-              </td>
-            </tr>
-          ))}
+          {data.map((record) => {
+            const detailUrl = `${OPENMONEY_SALARY_BASE}/${record.id}`;
+            const handleRowClick = () => {
+              window.open(detailUrl, '_blank', 'noopener,noreferrer');
+            };
+            const handleKeyDown = (e: React.KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleRowClick();
+              }
+            };
+            return (
+              <tr
+                key={record.id}
+                role="link"
+                tabIndex={0}
+                onClick={handleRowClick}
+                onKeyDown={handleKeyDown}
+                className="cursor-pointer border-b border-[var(--foreground)]/10 transition-colors hover:bg-[var(--foreground)]/5 [&:nth-child(even)]:bg-[var(--foreground)]/[0.02]"
+              >
+                <td className="px-4 py-3 text-[var(--foreground)]">
+                  {record.companyName}
+                </td>
+                <td className="px-4 py-3 text-[var(--foreground)]">
+                  {record.jobTitle}
+                </td>
+                <td className="px-4 py-3 text-right text-[var(--foreground)]">
+                  {formatAge(record.age)}
+                </td>
+                <td className="px-4 py-3 text-[var(--foreground)]">
+                  {record.grade ?? '-'}
+                </td>
+                <td className="px-4 py-3 text-right text-[var(--foreground)]">
+                  {formatHours(record.avgOvertimeHours)}
+                </td>
+                <td className="px-4 py-3 text-right text-[var(--foreground)]">
+                  {formatCurrency(record.annualSalary)}
+                </td>
+                <td className="px-4 py-3 text-right text-[var(--foreground)]">
+                  {formatCurrency(record.baseSalary)}
+                </td>
+                <td className="px-4 py-3 text-right text-[var(--foreground)]">
+                  {formatCurrency(record.bonusIncentive)}
+                </td>
+                <td className="px-4 py-3 text-right text-[var(--foreground)]">
+                  {formatCurrency(record.rsu)}
+                </td>
+                <td className="px-4 py-3 text-right text-[var(--foreground)]">
+                  {formatCurrency(record.stockOptions)}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
