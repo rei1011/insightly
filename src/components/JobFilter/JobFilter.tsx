@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from "next/navigation";
 
 export type JobFilterProps = {
   occupations: { id: string; name: string }[];
@@ -17,12 +17,12 @@ export function JobFilter({ occupations, selectedIds }: JobFilterProps) {
       : selectedIds.filter((id) => id !== occupationId);
 
     const params = new URLSearchParams(searchParams.toString());
-    params.set('page', '1');
+    params.set("page", "1");
 
     if (newIds.length > 0) {
-      params.set('occupations', newIds.join(','));
+      params.set("occupations", newIds.join(","));
     } else {
-      params.delete('occupations');
+      params.delete("occupations");
     }
 
     router.push(`?${params.toString()}`);
@@ -39,6 +39,7 @@ export function JobFilter({ occupations, selectedIds }: JobFilterProps) {
         {occupations.map((occ) => (
           <label
             key={occ.id}
+            data-jobfilter-label
             className="flex cursor-pointer items-center gap-2 rounded border border-[var(--foreground)]/20 px-3 py-2 text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--foreground)]/5 has-[:checked]:border-[var(--foreground)]/40 has-[:checked]:bg-[var(--foreground)]/10"
           >
             <input

@@ -93,9 +93,11 @@ function parseSalaryCard(
 
   // 職種: 職種ラベル直後のテキストを抽出（コロンあり/なし両対応）
   // カード形式は「職種コンサルタントグレード...」のようにコロンなしの場合がある
+  // 注意: [^グレード...] だと「ー」「レ」等が職種名（デザイナー、ディレクター等）に含まれるため
+  // 正規表現で途中切れする。キーワード単位の否定先読みを使用する
   let occupationName = "不明";
   const occupationMatch = cardText.match(
-    /職種\s*[：:]?\s*([^グレード年収基本給賞与残業\s]+)/
+    /職種\s*[：:]?\s*((?:(?!グレード|年収|基本給|賞与|残業)[^\s])+)/
   );
   if (occupationMatch) {
     occupationName = occupationMatch[1].trim();
