@@ -36,3 +36,19 @@ export const WithRange: Story = {
     salaryTo: 1200,
   },
 };
+
+export const WithBaseSalaryRange: Story = {
+  args: {
+    baseSalaryFrom: 400,
+    baseSalaryTo: 800,
+  },
+};
+
+export const WithAllFilters: Story = {
+  args: {
+    salaryFrom: 600,
+    salaryTo: 1200,
+    baseSalaryFrom: 400,
+    baseSalaryTo: 800,
+  },
+};

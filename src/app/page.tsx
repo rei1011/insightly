@@ -20,6 +20,8 @@ export default async function Home({ searchParams }: HomeProps) {
   const ageToParam = params.ageTo;
   const salaryFromParam = params.salaryFrom;
   const salaryToParam = params.salaryTo;
+  const baseSalaryFromParam = params.baseSalaryFrom;
+  const baseSalaryToParam = params.baseSalaryTo;
 
   const page = Math.max(
     1,
@@ -68,10 +70,23 @@ export default async function Home({ searchParams }: HomeProps) {
       ? salaryToParsed
       : undefined;
 
+  const baseSalaryFromRaw = Array.isArray(baseSalaryFromParam) ? baseSalaryFromParam[0] : baseSalaryFromParam;
+  const baseSalaryToRaw = Array.isArray(baseSalaryToParam) ? baseSalaryToParam[0] : baseSalaryToParam;
+  const baseSalaryFromParsed = baseSalaryFromRaw ? parseInt(baseSalaryFromRaw, 10) : undefined;
+  const baseSalaryToParsed = baseSalaryToRaw ? parseInt(baseSalaryToRaw, 10) : undefined;
+  const baseSalaryFrom =
+    baseSalaryFromParsed !== undefined && !Number.isNaN(baseSalaryFromParsed)
+      ? baseSalaryFromParsed
+      : undefined;
+  const baseSalaryTo =
+    baseSalaryToParsed !== undefined && !Number.isNaN(baseSalaryToParsed)
+      ? baseSalaryToParsed
+      : undefined;
+
   const [occupations, { data, total, page: currentPage, totalPages }] =
     await Promise.all([
       getOccupations(),
-      getCompensationData(page, 1000, sort, order, occupationIds, ageFrom, ageTo, salaryFrom, salaryTo),
+      getCompensationData(page, 1000, sort, order, occupationIds, ageFrom, ageTo, salaryFrom, salaryTo, baseSalaryFrom, baseSalaryTo),
     ]);
 
   const baseQuery = new URLSearchParams();
@@ -82,6 +97,8 @@ export default async function Home({ searchParams }: HomeProps) {
   if (ageTo !== undefined) baseQuery.set("ageTo", String(ageTo));
   if (salaryFrom !== undefined) baseQuery.set("salaryFrom", String(salaryFrom));
   if (salaryTo !== undefined) baseQuery.set("salaryTo", String(salaryTo));
+  if (baseSalaryFrom !== undefined) baseQuery.set("baseSalaryFrom", String(baseSalaryFrom));
+  if (baseSalaryTo !== undefined) baseQuery.set("baseSalaryTo", String(baseSalaryTo));
 
   const annualSalarySortOrder =
     sort === "annualSalary" ? order ?? "desc" : null;
@@ -96,6 +113,8 @@ export default async function Home({ searchParams }: HomeProps) {
   if (ageTo !== undefined) sortQuery.set("ageTo", String(ageTo));
   if (salaryFrom !== undefined) sortQuery.set("salaryFrom", String(salaryFrom));
   if (salaryTo !== undefined) sortQuery.set("salaryTo", String(salaryTo));
+  if (baseSalaryFrom !== undefined) sortQuery.set("baseSalaryFrom", String(baseSalaryFrom));
+  if (baseSalaryTo !== undefined) sortQuery.set("baseSalaryTo", String(baseSalaryTo));
   const annualSalarySortHref = `?${sortQuery.toString()}`;
 
   return (
@@ -109,7 +128,7 @@ export default async function Home({ searchParams }: HomeProps) {
           selectedIds={occupationIds ?? []}
         />
         <AgeFilter ageFrom={ageFrom} ageTo={ageTo} />
-        <SalaryFilter salaryFrom={salaryFrom} salaryTo={salaryTo} />
+        <SalaryFilter salaryFrom={salaryFrom} salaryTo={salaryTo} baseSalaryFrom={baseSalaryFrom} baseSalaryTo={baseSalaryTo} />
         <CompensationTable
           data={data}
           annualSalarySortOrder={annualSalarySortOrder}

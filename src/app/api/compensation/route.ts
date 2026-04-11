@@ -14,6 +14,8 @@ export async function GET(request: Request) {
   const ageToParam = searchParams.get('ageTo');
   const salaryFromParam = searchParams.get('salaryFrom');
   const salaryToParam = searchParams.get('salaryTo');
+  const baseSalaryFromParam = searchParams.get('baseSalaryFrom');
+  const baseSalaryToParam = searchParams.get('baseSalaryTo');
 
   const page = Math.max(1, parseInt(pageParam ?? String(DEFAULT_PAGE), 10) || DEFAULT_PAGE);
   const limit = Math.max(1, Math.min(10000, parseInt(limitParam ?? String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT));
@@ -27,6 +29,8 @@ export async function GET(request: Request) {
   const ageTo = ageToParam ? parseInt(ageToParam, 10) : undefined;
   const salaryFrom = salaryFromParam ? parseInt(salaryFromParam, 10) : undefined;
   const salaryTo = salaryToParam ? parseInt(salaryToParam, 10) : undefined;
+  const baseSalaryFrom = baseSalaryFromParam ? parseInt(baseSalaryFromParam, 10) : undefined;
+  const baseSalaryTo = baseSalaryToParam ? parseInt(baseSalaryToParam, 10) : undefined;
 
   const ageCondition =
     ageFrom !== undefined && !Number.isNaN(ageFrom) && ageTo !== undefined && !Number.isNaN(ageTo)
@@ -46,12 +50,22 @@ export async function GET(request: Request) {
           ? { annualSalary: { lte: salaryTo } }
           : undefined;
 
+  const baseSalaryCondition =
+    baseSalaryFrom !== undefined && !Number.isNaN(baseSalaryFrom) && baseSalaryTo !== undefined && !Number.isNaN(baseSalaryTo)
+      ? { baseSalary: { gte: baseSalaryFrom, lte: baseSalaryTo } }
+      : baseSalaryFrom !== undefined && !Number.isNaN(baseSalaryFrom)
+        ? { baseSalary: { gte: baseSalaryFrom } }
+        : baseSalaryTo !== undefined && !Number.isNaN(baseSalaryTo)
+          ? { baseSalary: { lte: baseSalaryTo } }
+          : undefined;
+
   const where =
-    occupationIds?.length || ageCondition || salaryCondition
+    occupationIds?.length || ageCondition || salaryCondition || baseSalaryCondition
       ? {
           ...(occupationIds?.length && { occupationId: { in: occupationIds } }),
           ...ageCondition,
           ...salaryCondition,
+          ...baseSalaryCondition,
         }
       : undefined;
 
