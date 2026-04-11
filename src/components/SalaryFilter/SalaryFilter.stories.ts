@@ -7,6 +7,9 @@ const meta = {
   component: SalaryFilter,
   parameters: {
     layout: 'padded',
+    nextjs: {
+      appDirectory: true,
+    },
   },
   tags: ['autodocs'],
 } satisfies Meta<typeof SalaryFilter>;
