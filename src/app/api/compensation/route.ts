@@ -12,6 +12,8 @@ export async function GET(request: Request) {
   const occupationsParam = searchParams.get('occupations');
   const ageFromParam = searchParams.get('ageFrom');
   const ageToParam = searchParams.get('ageTo');
+  const salaryFromParam = searchParams.get('salaryFrom');
+  const salaryToParam = searchParams.get('salaryTo');
 
   const page = Math.max(1, parseInt(pageParam ?? String(DEFAULT_PAGE), 10) || DEFAULT_PAGE);
   const limit = Math.max(1, Math.min(10000, parseInt(limitParam ?? String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT));
@@ -23,6 +25,8 @@ export async function GET(request: Request) {
 
   const ageFrom = ageFromParam ? parseInt(ageFromParam, 10) : undefined;
   const ageTo = ageToParam ? parseInt(ageToParam, 10) : undefined;
+  const salaryFrom = salaryFromParam ? parseInt(salaryFromParam, 10) : undefined;
+  const salaryTo = salaryToParam ? parseInt(salaryToParam, 10) : undefined;
 
   const ageCondition =
     ageFrom !== undefined && !Number.isNaN(ageFrom) && ageTo !== undefined && !Number.isNaN(ageTo)
@@ -33,11 +37,21 @@ export async function GET(request: Request) {
           ? { age: { lte: ageTo } }
           : undefined;
 
+  const salaryCondition =
+    salaryFrom !== undefined && !Number.isNaN(salaryFrom) && salaryTo !== undefined && !Number.isNaN(salaryTo)
+      ? { annualSalary: { gte: salaryFrom, lte: salaryTo } }
+      : salaryFrom !== undefined && !Number.isNaN(salaryFrom)
+        ? { annualSalary: { gte: salaryFrom } }
+        : salaryTo !== undefined && !Number.isNaN(salaryTo)
+          ? { annualSalary: { lte: salaryTo } }
+          : undefined;
+
   const where =
-    occupationIds?.length || ageCondition
+    occupationIds?.length || ageCondition || salaryCondition
       ? {
           ...(occupationIds?.length && { occupationId: { in: occupationIds } }),
           ...ageCondition,
+          ...salaryCondition,
         }
       : undefined;
 

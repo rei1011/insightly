@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AgeFilter } from "@/components/AgeFilter/AgeFilter";
 import { CompensationTable } from "@/components/CompensationTable/CompensationTable";
 import { JobFilter } from "@/components/JobFilter/JobFilter";
+import { SalaryFilter } from "@/components/SalaryFilter/SalaryFilter";
 import { getCompensationData } from "@/api/compensation";
 import { getOccupations } from "@/api/occupations";
 
@@ -17,6 +18,8 @@ export default async function Home({ searchParams }: HomeProps) {
   const occupationsParam = params.occupations;
   const ageFromParam = params.ageFrom;
   const ageToParam = params.ageTo;
+  const salaryFromParam = params.salaryFrom;
+  const salaryToParam = params.salaryTo;
 
   const page = Math.max(
     1,
@@ -52,10 +55,23 @@ export default async function Home({ searchParams }: HomeProps) {
       ? ageToParsed
       : undefined;
 
+  const salaryFromRaw = Array.isArray(salaryFromParam) ? salaryFromParam[0] : salaryFromParam;
+  const salaryToRaw = Array.isArray(salaryToParam) ? salaryToParam[0] : salaryToParam;
+  const salaryFromParsed = salaryFromRaw ? parseInt(salaryFromRaw, 10) : undefined;
+  const salaryToParsed = salaryToRaw ? parseInt(salaryToRaw, 10) : undefined;
+  const salaryFrom =
+    salaryFromParsed !== undefined && !Number.isNaN(salaryFromParsed)
+      ? salaryFromParsed
+      : undefined;
+  const salaryTo =
+    salaryToParsed !== undefined && !Number.isNaN(salaryToParsed)
+      ? salaryToParsed
+      : undefined;
+
   const [occupations, { data, total, page: currentPage, totalPages }] =
     await Promise.all([
       getOccupations(),
-      getCompensationData(page, 1000, sort, order, occupationIds, ageFrom, ageTo),
+      getCompensationData(page, 1000, sort, order, occupationIds, ageFrom, ageTo, salaryFrom, salaryTo),
     ]);
 
   const baseQuery = new URLSearchParams();
@@ -64,6 +80,8 @@ export default async function Home({ searchParams }: HomeProps) {
   if (occupationIds?.length) baseQuery.set("occupations", occupationIds.join(","));
   if (ageFrom !== undefined) baseQuery.set("ageFrom", String(ageFrom));
   if (ageTo !== undefined) baseQuery.set("ageTo", String(ageTo));
+  if (salaryFrom !== undefined) baseQuery.set("salaryFrom", String(salaryFrom));
+  if (salaryTo !== undefined) baseQuery.set("salaryTo", String(salaryTo));
 
   const annualSalarySortOrder =
     sort === "annualSalary" ? order ?? "desc" : null;
@@ -76,6 +94,8 @@ export default async function Home({ searchParams }: HomeProps) {
   if (occupationIds?.length) sortQuery.set("occupations", occupationIds.join(","));
   if (ageFrom !== undefined) sortQuery.set("ageFrom", String(ageFrom));
   if (ageTo !== undefined) sortQuery.set("ageTo", String(ageTo));
+  if (salaryFrom !== undefined) sortQuery.set("salaryFrom", String(salaryFrom));
+  if (salaryTo !== undefined) sortQuery.set("salaryTo", String(salaryTo));
   const annualSalarySortHref = `?${sortQuery.toString()}`;
 
   return (
@@ -89,6 +109,7 @@ export default async function Home({ searchParams }: HomeProps) {
           selectedIds={occupationIds ?? []}
         />
         <AgeFilter ageFrom={ageFrom} ageTo={ageTo} />
+        <SalaryFilter salaryFrom={salaryFrom} salaryTo={salaryTo} />
         <CompensationTable
           data={data}
           annualSalarySortOrder={annualSalarySortOrder}

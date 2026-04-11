@@ -24,6 +24,8 @@ export type CompensationResponse = {
  * @param occupationIds - 絞り込む職種IDの配列（複数指定可）
  * @param ageFrom - 年齢の下限（歳）
  * @param ageTo - 年齢の上限（歳）
+ * @param salaryFrom - 年収の下限（万円）
+ * @param salaryTo - 年収の上限（万円）
  */
 export async function getCompensationData(
   page: number = 1,
@@ -32,7 +34,9 @@ export async function getCompensationData(
   order?: string,
   occupationIds?: string[],
   ageFrom?: number,
-  ageTo?: number
+  ageTo?: number,
+  salaryFrom?: number,
+  salaryTo?: number
 ): Promise<CompensationResponse> {
   const params = new URLSearchParams({
     page: String(page),
@@ -43,6 +47,8 @@ export async function getCompensationData(
   if (occupationIds?.length) params.set("occupations", occupationIds.join(","));
   if (ageFrom !== undefined) params.set("ageFrom", String(ageFrom));
   if (ageTo !== undefined) params.set("ageTo", String(ageTo));
+  if (salaryFrom !== undefined) params.set("salaryFrom", String(salaryFrom));
+  if (salaryTo !== undefined) params.set("salaryTo", String(salaryTo));
   const res = await fetch(`${getBaseUrl()}/api/compensation?${params}`);
   if (!res.ok) throw new Error("Failed to fetch compensation data");
   return res.json();
