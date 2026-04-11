@@ -47,7 +47,7 @@ export function JobFilter({ occupations, selectedIds }: JobFilterProps) {
               checked={selectedIds.includes(occ.id)}
               onChange={(e) => handleChange(occ.id, e.target.checked)}
               className="h-4 w-4 rounded border-[var(--foreground)]/30 accent-[var(--foreground)]"
-              aria-label={`${occ.name}で絞り込む`}
+              aria-label={`${occ.fullName}で絞り込む`}
             />
             <span>{occ.name}</span>
           </label>
