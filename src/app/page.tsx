@@ -6,6 +6,7 @@ import { JobFilter } from "@/components/JobFilter/JobFilter";
 import { SalaryFilter } from "@/components/SalaryFilter/SalaryFilter";
 import { getCompensationData } from "@/api/compensation";
 import { getOccupations } from "@/api/occupations";
+import { parseStringParam, parseStringArrayParam, parseIntParam } from "@/lib/searchParams";
 
 type HomeProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -13,81 +14,18 @@ type HomeProps = {
 
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
-  const pageParam = params.page;
-  const sortParam = params.sort;
-  const orderParam = params.order;
-  const occupationsParam = params.occupations;
-  const companyNameParam = params.companyName;
-  const ageFromParam = params.ageFrom;
-  const ageToParam = params.ageTo;
-  const salaryFromParam = params.salaryFrom;
-  const salaryToParam = params.salaryTo;
-  const baseSalaryFromParam = params.baseSalaryFrom;
-  const baseSalaryToParam = params.baseSalaryTo;
 
-  const page = Math.max(
-    1,
-    parseInt(
-      Array.isArray(pageParam) ? pageParam[0] : (pageParam ?? "1"),
-      10
-    ) || 1
-  );
-
-  const sort = Array.isArray(sortParam) ? sortParam[0] : sortParam;
-  const order = (Array.isArray(orderParam) ? orderParam[0] : orderParam) as
-    | "asc"
-    | "desc"
-    | undefined;
-
-  const occupationIds = occupationsParam
-    ? (Array.isArray(occupationsParam) ? occupationsParam[0] : occupationsParam)
-        .split(",")
-        .map((id) => id.trim())
-        .filter(Boolean)
-    : undefined;
-
-  const companyName = companyNameParam
-    ? (Array.isArray(companyNameParam) ? companyNameParam[0] : companyNameParam)
-    : undefined;
-
-  const ageFromRaw = Array.isArray(ageFromParam) ? ageFromParam[0] : ageFromParam;
-  const ageToRaw = Array.isArray(ageToParam) ? ageToParam[0] : ageToParam;
-  const ageFromParsed = ageFromRaw ? parseInt(ageFromRaw, 10) : undefined;
-  const ageToParsed = ageToRaw ? parseInt(ageToRaw, 10) : undefined;
-  const ageFrom =
-    ageFromParsed !== undefined && !Number.isNaN(ageFromParsed)
-      ? ageFromParsed
-      : undefined;
-  const ageTo =
-    ageToParsed !== undefined && !Number.isNaN(ageToParsed)
-      ? ageToParsed
-      : undefined;
-
-  const salaryFromRaw = Array.isArray(salaryFromParam) ? salaryFromParam[0] : salaryFromParam;
-  const salaryToRaw = Array.isArray(salaryToParam) ? salaryToParam[0] : salaryToParam;
-  const salaryFromParsed = salaryFromRaw ? parseInt(salaryFromRaw, 10) : undefined;
-  const salaryToParsed = salaryToRaw ? parseInt(salaryToRaw, 10) : undefined;
-  const salaryFrom =
-    salaryFromParsed !== undefined && !Number.isNaN(salaryFromParsed)
-      ? salaryFromParsed
-      : undefined;
-  const salaryTo =
-    salaryToParsed !== undefined && !Number.isNaN(salaryToParsed)
-      ? salaryToParsed
-      : undefined;
-
-  const baseSalaryFromRaw = Array.isArray(baseSalaryFromParam) ? baseSalaryFromParam[0] : baseSalaryFromParam;
-  const baseSalaryToRaw = Array.isArray(baseSalaryToParam) ? baseSalaryToParam[0] : baseSalaryToParam;
-  const baseSalaryFromParsed = baseSalaryFromRaw ? parseInt(baseSalaryFromRaw, 10) : undefined;
-  const baseSalaryToParsed = baseSalaryToRaw ? parseInt(baseSalaryToRaw, 10) : undefined;
-  const baseSalaryFrom =
-    baseSalaryFromParsed !== undefined && !Number.isNaN(baseSalaryFromParsed)
-      ? baseSalaryFromParsed
-      : undefined;
-  const baseSalaryTo =
-    baseSalaryToParsed !== undefined && !Number.isNaN(baseSalaryToParsed)
-      ? baseSalaryToParsed
-      : undefined;
+  const page = Math.max(1, parseIntParam(params.page) ?? 1);
+  const sort = parseStringParam(params.sort);
+  const order = parseStringParam(params.order) as "asc" | "desc" | undefined;
+  const occupationIds = parseStringArrayParam(params.occupations);
+  const companyName = parseStringParam(params.companyName);
+  const ageFrom = parseIntParam(params.ageFrom);
+  const ageTo = parseIntParam(params.ageTo);
+  const salaryFrom = parseIntParam(params.salaryFrom);
+  const salaryTo = parseIntParam(params.salaryTo);
+  const baseSalaryFrom = parseIntParam(params.baseSalaryFrom);
+  const baseSalaryTo = parseIntParam(params.baseSalaryTo);
 
   const [occupations, { data, total, page: currentPage, totalPages }] =
     await Promise.all([
