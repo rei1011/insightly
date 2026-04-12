@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AgeFilter } from "@/components/AgeFilter/AgeFilter";
+import { CompanyFilter } from "@/components/CompanyFilter/CompanyFilter";
 import { CompensationTable } from "@/components/CompensationTable/CompensationTable";
 import { JobFilter } from "@/components/JobFilter/JobFilter";
 import { SalaryFilter } from "@/components/SalaryFilter/SalaryFilter";
@@ -16,6 +17,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const sortParam = params.sort;
   const orderParam = params.order;
   const occupationsParam = params.occupations;
+  const companyNameParam = params.companyName;
   const ageFromParam = params.ageFrom;
   const ageToParam = params.ageTo;
   const salaryFromParam = params.salaryFrom;
@@ -42,6 +44,10 @@ export default async function Home({ searchParams }: HomeProps) {
         .split(",")
         .map((id) => id.trim())
         .filter(Boolean)
+    : undefined;
+
+  const companyName = companyNameParam
+    ? (Array.isArray(companyNameParam) ? companyNameParam[0] : companyNameParam)
     : undefined;
 
   const ageFromRaw = Array.isArray(ageFromParam) ? ageFromParam[0] : ageFromParam;
@@ -86,13 +92,14 @@ export default async function Home({ searchParams }: HomeProps) {
   const [occupations, { data, total, page: currentPage, totalPages }] =
     await Promise.all([
       getOccupations(),
-      getCompensationData(page, 1000, sort, order, occupationIds, ageFrom, ageTo, salaryFrom, salaryTo, baseSalaryFrom, baseSalaryTo),
+      getCompensationData(page, 1000, sort, order, occupationIds, ageFrom, ageTo, salaryFrom, salaryTo, baseSalaryFrom, baseSalaryTo, undefined, companyName),
     ]);
 
   const baseQuery = new URLSearchParams();
   if (sort) baseQuery.set("sort", sort);
   if (order) baseQuery.set("order", order);
   if (occupationIds?.length) baseQuery.set("occupations", occupationIds.join(","));
+  if (companyName) baseQuery.set("companyName", companyName);
   if (ageFrom !== undefined) baseQuery.set("ageFrom", String(ageFrom));
   if (ageTo !== undefined) baseQuery.set("ageTo", String(ageTo));
   if (salaryFrom !== undefined) baseQuery.set("salaryFrom", String(salaryFrom));
@@ -109,6 +116,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const sortQuery = new URLSearchParams({ sort: "annualSalary", order: nextOrder });
   sortQuery.set("page", "1");
   if (occupationIds?.length) sortQuery.set("occupations", occupationIds.join(","));
+  if (companyName) sortQuery.set("companyName", companyName);
   if (ageFrom !== undefined) sortQuery.set("ageFrom", String(ageFrom));
   if (ageTo !== undefined) sortQuery.set("ageTo", String(ageTo));
   if (salaryFrom !== undefined) sortQuery.set("salaryFrom", String(salaryFrom));
@@ -127,6 +135,7 @@ export default async function Home({ searchParams }: HomeProps) {
           occupations={occupations}
           selectedIds={occupationIds ?? []}
         />
+        <CompanyFilter companyName={companyName} />
         <AgeFilter ageFrom={ageFrom} ageTo={ageTo} />
         <SalaryFilter salaryFrom={salaryFrom} salaryTo={salaryTo} baseSalaryFrom={baseSalaryFrom} baseSalaryTo={baseSalaryTo} />
         <CompensationTable

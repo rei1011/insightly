@@ -10,6 +10,7 @@ export async function GET(request: Request) {
   const sortParam = searchParams.get('sort');
   const orderParam = searchParams.get('order');
   const occupationsParam = searchParams.get('occupations');
+  const companyNameParam = searchParams.get('companyName');
   const ageFromParam = searchParams.get('ageFrom');
   const ageToParam = searchParams.get('ageTo');
   const salaryFromParam = searchParams.get('salaryFrom');
@@ -24,6 +25,8 @@ export async function GET(request: Request) {
   const occupationIds = occupationsParam
     ? occupationsParam.split(',').map((id) => id.trim()).filter(Boolean)
     : undefined;
+
+  const companyName = companyNameParam ? companyNameParam.trim() : undefined;
 
   const ageFrom = ageFromParam ? parseInt(ageFromParam, 10) : undefined;
   const ageTo = ageToParam ? parseInt(ageToParam, 10) : undefined;
@@ -60,9 +63,10 @@ export async function GET(request: Request) {
           : undefined;
 
   const where =
-    occupationIds?.length || ageCondition || salaryCondition || baseSalaryCondition
+    occupationIds?.length || companyName || ageCondition || salaryCondition || baseSalaryCondition
       ? {
           ...(occupationIds?.length && { occupationId: { in: occupationIds } }),
+          ...(companyName && { company: { name: { contains: companyName, mode: 'insensitive' as const } } }),
           ...ageCondition,
           ...salaryCondition,
           ...baseSalaryCondition,
