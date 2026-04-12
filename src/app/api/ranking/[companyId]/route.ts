@@ -1,15 +1,21 @@
 import { prisma } from '@/lib/prisma';
 
-const RANKING_LIMIT = 30;
-
-type RankingRow = {
-  company_id: number;
-  company_name: string;
-  avg_salary: string;
-  count: string;
+type SalaryDetailRow = {
+  age: number;
+  occupation_name: string;
+  annual_salary: string;
 };
 
-export async function GET(request: Request) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ companyId: string }> }
+) {
+  const { companyId: companyIdParam } = await params;
+  const companyId = parseInt(companyIdParam, 10);
+  if (Number.isNaN(companyId)) {
+    return Response.json({ error: 'Invalid companyId' }, { status: 400 });
+  }
+
   const { searchParams } = new URL(request.url);
   const occupationsParam = searchParams.get('occupations');
   const ageFromParam = searchParams.get('ageFrom');
@@ -23,9 +29,9 @@ export async function GET(request: Request) {
   const ageFrom = ageFromParam ? parseInt(ageFromParam, 10) : undefined;
   const ageTo = ageToParam ? parseInt(ageToParam, 10) : undefined;
 
-  const conditions: string[] = [];
-  const values: (string | number | string[])[] = [];
-  let idx = 1;
+  const conditions: string[] = ['s.company_id = $1'];
+  const values: (number | string | string[])[] = [companyId];
+  let idx = 2;
 
   if (occupationIds?.length) {
     conditions.push(`s.occupation_id = ANY($${idx}::uuid[])`);
@@ -45,31 +51,26 @@ export async function GET(request: Request) {
     idx++;
   }
 
-  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const whereClause = `WHERE ${conditions.join(' AND ')}`;
 
-  const rows = await prisma.$queryRawUnsafe<RankingRow[]>(
+  const rows = await prisma.$queryRawUnsafe<SalaryDetailRow[]>(
     `
     SELECT
-      c.id AS company_id,
-      c.name AS company_name,
-      AVG(s.annual_salary)::text AS avg_salary,
-      COUNT(*)::text AS count
+      s.age,
+      o.name AS occupation_name,
+      s.annual_salary::text AS annual_salary
     FROM salary s
-    JOIN company c ON s.company_id = c.id
+    JOIN occupation o ON s.occupation_id = o.id
     ${whereClause}
-    GROUP BY c.id, c.name
-    ORDER BY AVG(s.annual_salary) DESC
-    LIMIT ${RANKING_LIMIT}
+    ORDER BY s.annual_salary DESC
     `,
     ...values
   );
 
-  const data = rows.map((row, index) => ({
-    rank: index + 1,
-    companyId: Number(row.company_id),
-    companyName: row.company_name,
-    avgSalary: Math.round(Number(row.avg_salary)),
-    count: Number(row.count),
+  const data = rows.map((row) => ({
+    age: row.age,
+    occupationName: row.occupation_name,
+    annualSalary: Math.round(Number(row.annual_salary)),
   }));
 
   return Response.json({ data });

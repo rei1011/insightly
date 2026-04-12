@@ -1,11 +1,15 @@
+"use client";
+
 export type RankingTableProps = {
   data: {
     rank: number;
+    companyId: number;
     companyName: string;
     avgSalary: number;
     count: number;
   }[];
   emptyMessage?: string;
+  onRowClick?: (companyId: number, companyName: string) => void;
 };
 
 function formatCurrency(value: number): string {
@@ -15,6 +19,7 @@ function formatCurrency(value: number): string {
 export function RankingTable({
   data,
   emptyMessage = 'データがありません',
+  onRowClick,
 }: RankingTableProps) {
   if (data.length === 0) {
     return (
@@ -47,7 +52,9 @@ export function RankingTable({
           {data.map((record) => (
             <tr
               key={record.rank}
-              className="border-b border-[var(--foreground)]/10 [&:nth-child(even)]:bg-[var(--foreground)]/[0.02]"
+              className="border-b border-[var(--foreground)]/10 [&:nth-child(even)]:bg-[var(--foreground)]/[0.02] cursor-pointer hover:bg-[var(--foreground)]/[0.05] transition-colors"
+              onClick={() => onRowClick?.(record.companyId, record.companyName)}
+              data-testid={`ranking-table-row-${record.rank}`}
             >
               <td className="px-4 py-3 text-right font-medium text-[var(--foreground)]">
                 {record.rank}

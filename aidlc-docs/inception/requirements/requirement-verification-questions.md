@@ -1,93 +1,71 @@
-# 要件確認質問
+# 要件確認の質問（詳細データ表示機能）
 
-ランキングのグラフ表示機能について、以下の質問にお答えください。  
-各質問の `[Answer]:` タグの後にアルファベットを記入してください。  
-選択肢に合うものがない場合は最後の選択肢（X/その他）を選び、内容を記述してください。
+ランキングレコードをクリックした際に、平均年収の計算に利用されたデータを表示する機能についての確認事項です。
+各質問の `[Answer]:` タグの後に回答（アルファベット）を記入してください。
+選択肢が合わない場合は最後の選択肢（Other）を選び、詳細を記述してください。
 
 ---
 
 ## Question 1
-グラフの種類はどれにしますか？
 
-A) 横棒グラフ（会社名を縦軸、年収を横軸）— ランキング表示に最適
-B) 縦棒グラフ（会社名を横軸、年収を縦軸）
-C) どちらでもよい（推奨を任せる）
-X) Other (please describe after [Answer]: tag below)
+クリック時のデータ表示方式はどのようにしたいですか？
 
-[Answer]: B
-
----
-
-## Question 2
-グラフの表示位置はどこにしますか？
-
-A) テーブルの上部にグラフを追加（グラフ → テーブルの順）
-B) テーブルの下部にグラフを追加（テーブル → グラフの順）
-C) グラフとテーブルをタブで切り替えられるようにする
-D) テーブルを廃止してグラフのみにする
-X) Other (please describe after [Answer]: tag below)
+A) モーダル（ポップアップ）でテーブル表示
+B) 行を展開（アコーディオン形式）してテーブル表示
+C) 別ページ（詳細ページ）に遷移してテーブル表示
+D) Other (please describe after [Answer]: tag below)
 
 [Answer]: A
 
 ---
 
-## Question 3
-グラフに表示するデータ件数はどうしますか？
+## Question 2
 
-A) 現在と同じ上位30社すべて表示
-B) 上位10社に絞る
-C) 上位20社に絞る
-D) ユーザーが件数を選択できるようにする
-X) Other (please describe after [Answer]: tag below)
+表示したい個別データの項目はどれですか？（現在 `salary` テーブルに存在する項目から選択）
+
+A) 年齢・職種・年収（annual_salary）・基本給（base_salary）の主要4項目
+B) 全項目（年齢・職種・グレード・残業時間・年収・基本給・ボーナス・ストックオプション・RSU）
+C) 年収（annual_salary）・年齢・職種のみのシンプル表示
+D) Other (please describe after [Answer]: tag below)
+
+[Answer]: D 年齢、職種、年収の3項目を表示
+
+---
+
+## Question 3
+
+表示するデータの並び順はどうしますか？
+
+A) 年収（annual_salary）の降順
+B) 年齢の昇順
+C) 職種名のアルファベット順
+D) Other (please describe after [Answer]: tag below)
 
 [Answer]: A
 
 ---
 
 ## Question 4
-グラフのライブラリはどれを使いますか？（現在はグラフ用ライブラリは未導入）
 
-A) Recharts（React向け、軽量でシンプル）
-B) Chart.js + react-chartjs-2（多機能、実績豊富）
-C) Nivo（高品質なビジュアライゼーション、Recharts系）
-D) 任せる（推奨を採用）
-X) Other (please describe after [Answer]: tag below)
+表示するデータ件数に上限を設けますか？
 
-[Answer]: D — メンテが頻繁でstarの数が多いものを優先
-
----
-
-## Question 5
-職種・年齢フィルタを変更したとき、グラフも連動して更新しますか？
-
-A) はい、テーブルと同じくフィルタに連動して更新する
-B) いいえ、グラフは固定表示でよい
-X) Other (please describe after [Answer]: tag below)
+A) 上限なし（全件表示）
+B) 上限あり（具体的な件数は Other で指定してください）
+C) Other (please describe after [Answer]: tag below)
 
 [Answer]: A
 
 ---
 
-## Question 6（拡張機能: セキュリティ）
-このプロジェクトにセキュリティ拡張ルールを適用しますか？
+## Question 5
 
-A) はい — セキュリティルールをブロッキング制約として適用する（本番向けアプリに推奨）
-B) いいえ — セキュリティルールをスキップする（PoC・プロトタイプ向け）
-X) Other (please describe after [Answer]: tag below)
+現在ランキングページには年齢・職種フィルターが存在します。詳細データにも同じフィルター条件を適用しますか？
 
-[Answer]: B
+A) はい（ランキングページと同じフィルター条件で絞り込んだデータを表示）
+B) いいえ（フィルターに関わらず、その会社の全データを表示）
+C) Other (please describe after [Answer]: tag below)
 
----
-
-## Question 7（拡張機能: Property-Based Testing）
-Property-Based Testing ルールを適用しますか？
-
-A) はい — PBTルールをブロッキング制約として適用する（ビジネスロジック・データ変換を含むプロジェクトに推奨）
-B) 部分適用 — 純粋関数とシリアライゼーションのみ適用
-C) いいえ — PBTルールをスキップする（シンプルなCRUD・UIのみのプロジェクト向け）
-X) Other (please describe after [Answer]: tag below)
-
-[Answer]: C
+[Answer]: A
 
 ---
 

@@ -1,7 +1,7 @@
 import { AgeFilter } from "@/components/AgeFilter/AgeFilter";
 import { JobFilter } from "@/components/JobFilter/JobFilter";
 import { RankingChart } from "@/components/RankingChart/RankingChart";
-import { RankingTable } from "@/components/RankingTable/RankingTable";
+import { RankingInteraction } from "@/components/RankingInteraction/RankingInteraction";
 import { getRankingData } from "@/api/ranking";
 import { getOccupations } from "@/api/occupations";
 import { parseStringArrayParam, parseIntParam } from "@/lib/searchParams";
@@ -31,7 +31,12 @@ export default async function RankingPage({ searchParams }: RankingPageProps) {
         <JobFilter occupations={occupations} selectedIds={occupationIds ?? []} />
         <AgeFilter ageFrom={ageFrom} ageTo={ageTo} />
         <RankingChart data={data} />
-        <RankingTable data={data} />
+        <RankingInteraction
+          data={data}
+          occupationIds={occupationIds ?? undefined}
+          ageFrom={ageFrom ?? undefined}
+          ageTo={ageTo ?? undefined}
+        />
       </main>
     </div>
   );

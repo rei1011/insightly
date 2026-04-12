@@ -16,6 +16,7 @@ type Story = StoryObj<typeof meta>;
 
 const sampleData = Array.from({ length: 10 }, (_, i) => ({
   rank: i + 1,
+  companyId: i + 1,
   companyName: `株式会社サンプル${String.fromCharCode(65 + i)}`,
   avgSalary: 1200 - i * 80,
   count: 50 - i * 3,
