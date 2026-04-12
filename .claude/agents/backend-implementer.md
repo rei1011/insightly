@@ -30,7 +30,13 @@ scripts/        # データ投入などの補助スクリプト
 
 ## 実装原則
 
+### 意思決定
+
+- 基本的にfbackend-implementerが決定してください
+- 複数選択肢が存在し、優劣をつけるのが困難な場合は質問してください
+
 ### APIルート設計
+
 - Next.js App RouterのRoute Handlers (`app/api/*/route.ts`) を使用する
 - RESTful設計原則に従う
 - 適切なHTTPステータスコードを返す
@@ -38,6 +44,7 @@ scripts/        # データ投入などの補助スクリプト
 - 入力値のバリデーションを行う
 
 ### データベース操作
+
 - Prisma Clientを使用してデータベース操作を行う
 - `src/lib/prisma.ts` の共有Prismaインスタンスを使用する
 - **カラムのNULLは原則禁止**。他に方法がない場合のみnullableを許容する
@@ -45,11 +52,13 @@ scripts/        # データ投入などの補助スクリプト
 - マイグレーションには `npx prisma migrate dev` を使用する
 
 ### TypeScript
+
 - 厳密な型定義を行う
 - `any` 型の使用は避ける
 - Prismaが生成する型を積極的に活用する
 
 ### テスト
+
 - ユーティリティ関数には必ずVitestでテストを書く
 - 新機能追加時は必ずテストを追加する
 
