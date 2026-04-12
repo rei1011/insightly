@@ -1,5 +1,6 @@
 import { AgeFilter } from "@/components/AgeFilter/AgeFilter";
 import { JobFilter } from "@/components/JobFilter/JobFilter";
+import { RankingChart } from "@/components/RankingChart/RankingChart";
 import { RankingTable } from "@/components/RankingTable/RankingTable";
 import { getRankingData } from "@/api/ranking";
 import { getOccupations } from "@/api/occupations";
@@ -29,6 +30,7 @@ export default async function RankingPage({ searchParams }: RankingPageProps) {
         </h1>
         <JobFilter occupations={occupations} selectedIds={occupationIds ?? []} />
         <AgeFilter ageFrom={ageFrom} ageTo={ageTo} />
+        <RankingChart data={data} />
         <RankingTable data={data} />
       </main>
     </div>
