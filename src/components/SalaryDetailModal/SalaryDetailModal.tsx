@@ -152,11 +152,12 @@ export function SalaryDetailModal({
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(false);
     getSalaryDetail(companyId, occupationIds, ageFrom, ageTo)
       .then((res) => {
-        if (!cancelled) setData(res.data);
+        if (!cancelled) {
+          setData(res.data);
+          setError(false);
+        }
       })
       .catch(() => {
         if (!cancelled) setError(true);

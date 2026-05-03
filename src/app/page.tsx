@@ -66,9 +66,17 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-6xl flex-col py-16 px-8 bg-white dark:bg-black sm:px-16">
-        <h1 className="mb-8 text-2xl font-semibold tracking-tight text-black dark:text-zinc-50">
-          報酬一覧
-        </h1>
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-2xl font-semibold tracking-tight text-black dark:text-zinc-50">
+            報酬一覧
+          </h1>
+          <Link
+            href="/salary/new"
+            className="rounded bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+          >
+            新規作成
+          </Link>
+        </div>
         <JobFilter
           occupations={occupations}
           selectedIds={occupationIds ?? []}
