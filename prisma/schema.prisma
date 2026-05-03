@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Company {
-  id        Int      @id
+  id        Int      @id @default(autoincrement())
   name      String   @unique
   salaries  Salary[]
 
@@ -27,7 +27,7 @@ model Occupation {
 }
 
 model Salary {
-  id            String   @id
+  id            String   @id @default(uuid())
   companyId     Int      @map("company_id")
   occupationId  String   @map("occupation_id") @db.Uuid
   age           Int
