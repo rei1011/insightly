@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { SalaryActions } from '@/components/SalaryActions/SalaryActions';
 
 const OPENMONEY_SALARY_BASE = 'https://openmoney.jp/salaries';
 
@@ -103,6 +104,9 @@ export const CompensationTable = ({
             <th className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">
               ストックオプション
             </th>
+            <th className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">
+              操作
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -155,6 +159,9 @@ export const CompensationTable = ({
                 </td>
                 <td className="px-4 py-3 text-right text-[var(--foreground)]">
                   {formatCurrency(record.stockOptions)}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <SalaryActions salaryId={record.id} />
                 </td>
               </tr>
             );
