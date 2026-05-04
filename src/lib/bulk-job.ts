@@ -152,6 +152,15 @@ async function processUpdate(jobId: string, rows: Record<string, string>[]) {
   });
 }
 
+async function processDelete(jobId: string, rows: Record<string, string>[]) {
+  await processBulkRows(jobId, rows, async (row) => {
+    const id = row['id'].trim();
+    const existing = await prisma.salary.findUnique({ where: { id } });
+    if (!existing) return;
+    await prisma.salary.delete({ where: { id } });
+  });
+}
+
 export async function executeBulkJob(jobId: string) {
   const job = await prisma.bulkJob.update({
     where: { id: jobId },
@@ -166,6 +175,8 @@ export async function executeBulkJob(jobId: string) {
       await processImport(jobId, rows);
     } else if (type === 'update') {
       await processUpdate(jobId, rows);
+    } else if (type === 'delete') {
+      await processDelete(jobId, rows);
     }
   } catch (error) {
     await prisma.bulkJob.update({

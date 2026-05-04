@@ -1,6 +1,6 @@
 import Papa from 'papaparse';
 
-export type BulkOperationType = 'import' | 'update';
+export type BulkOperationType = 'import' | 'update' | 'delete';
 
 const IMPORT_HEADERS = [
   '会社名', '職種名', '年齢', 'グレード', '残業時間',
@@ -8,6 +8,8 @@ const IMPORT_HEADERS = [
 ] as const;
 
 const UPDATE_HEADERS = ['id', ...IMPORT_HEADERS] as const;
+
+const DELETE_REQUIRED_HEADER = 'id';
 
 export type CsvRowError = {
   row: number;
@@ -51,6 +53,10 @@ export function validateHeaders(
     if (missing.length > 0) {
       return `必須ヘッダーが不足しています: ${missing.join(', ')}`;
     }
+  } else if (type === 'delete') {
+    if (!headers.includes(DELETE_REQUIRED_HEADER)) {
+      return `必須ヘッダーが不足しています: ${DELETE_REQUIRED_HEADER}`;
+    }
   }
   return null;
 }
@@ -71,7 +77,7 @@ export function validateRow(
 ): CsvRowError[] {
   const errors: CsvRowError[] = [];
 
-  if (type === 'update') {
+  if (type === 'update' || type === 'delete') {
     const id = row['id']?.trim();
     if (!id) {
       errors.push({ row: rowNumber, field: 'id', message: 'idは必須です' });
@@ -79,6 +85,8 @@ export function validateRow(
       errors.push({ row: rowNumber, field: 'id', message: 'idの形式が不正です（UUID形式で入力してください）' });
     }
   }
+
+  if (type === 'delete') return errors;
 
   const companyName = row['会社名']?.trim();
   if (!companyName) {
@@ -189,7 +197,7 @@ export function generateErrorCsv(
 }
 
 const MAX_ROWS = 10000;
-const VALID_TYPES: BulkOperationType[] = ['import', 'update'];
+const VALID_TYPES: BulkOperationType[] = ['import', 'update', 'delete'];
 
 export type BulkRequestValidation =
   | { success: true; type: BulkOperationType; result: CsvParseResult }
@@ -208,7 +216,7 @@ export async function validateBulkRequest(
   if (!type || !VALID_TYPES.includes(type as BulkOperationType)) {
     return {
       success: false,
-      error: 'typeは import, update のいずれかを指定してください',
+      error: 'typeは import, update, delete のいずれかを指定してください',
       status: 400,
     };
   }
