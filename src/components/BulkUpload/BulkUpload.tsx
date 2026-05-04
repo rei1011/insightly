@@ -6,7 +6,7 @@ import { BulkProgress } from './BulkProgress';
 import { BulkResult } from './BulkResult';
 import type { ParsedRow } from '@/lib/csv';
 
-type Tab = 'import' | 'update' | 'export';
+type Tab = 'import' | 'update' | 'delete' | 'export';
 
 type Step = 'upload' | 'preview' | 'processing' | 'result';
 
@@ -23,6 +23,7 @@ type JobStatus = {
 const TAB_CONFIG: { key: Tab; label: string; templateUrl: string | null; description: string }[] = [
   { key: 'import', label: '一括取り込み', templateUrl: '/templates/salary-import.csv', description: 'CSVファイルで報酬データを一括取り込みします。' },
   { key: 'update', label: '一括編集', templateUrl: '/templates/salary-update.csv', description: 'CSVファイルで既存の報酬データを一括編集します。id列で対象を特定します。' },
+  { key: 'delete', label: '一括削除', templateUrl: '/templates/salary-delete.csv', description: 'CSVファイルで報酬データを一括削除します。id列で対象を特定します。' },
   { key: 'export', label: 'エクスポート', templateUrl: null, description: '全件の報酬データをCSVファイルとしてダウンロードします。' },
 ];
 
@@ -257,7 +258,7 @@ export function BulkUpload() {
           {/* プレビューステップ */}
           {step === 'preview' && (
             <BulkPreview
-              type={activeTab as 'import' | 'update'}
+              type={activeTab as 'import' | 'update' | 'delete'}
               validRows={validRows}
               errorRows={errorRows}
               onExecute={handleExecute}

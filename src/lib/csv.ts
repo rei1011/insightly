@@ -15,6 +15,8 @@ export const IMPORT_HEADERS = [
 
 export const UPDATE_HEADERS = ['id', ...IMPORT_HEADERS] as const;
 
+export const DELETE_HEADERS = ['id'] as const;
+
 export type CsvRow = Record<string, string>;
 
 export type ParsedRow = {
@@ -42,12 +44,14 @@ export function parseCsv(csvText: string): CsvRow[] {
 
 export function validateHeaders(
   headers: string[],
-  type: 'import' | 'update'
+  type: 'import' | 'update' | 'delete'
 ): string | null {
   const expected =
     type === 'import'
       ? IMPORT_HEADERS
-      : UPDATE_HEADERS;
+      : type === 'update'
+        ? UPDATE_HEADERS
+        : DELETE_HEADERS;
 
   for (const h of expected) {
     if (!headers.includes(h)) {
@@ -139,9 +143,22 @@ export function validateUpdateRow(row: CsvRow, rowNumber: number): ParsedRow {
   return { rowNumber, data: row, errors };
 }
 
+export function validateDeleteRow(row: CsvRow, rowNumber: number): ParsedRow {
+  const errors: { field: string; message: string }[] = [];
+
+  const id = row['id']?.trim();
+  if (!id) {
+    errors.push({ field: 'id', message: 'idは必須です' });
+  } else if (!UUID_REGEX.test(id)) {
+    errors.push({ field: 'id', message: 'idの形式が不正です' });
+  }
+
+  return { rowNumber, data: row, errors };
+}
+
 export function previewCsv(
   csvText: string,
-  type: 'import' | 'update'
+  type: 'import' | 'update' | 'delete'
 ): PreviewResult & { headerError?: string } {
   const rows = parseCsv(csvText);
 
@@ -162,7 +179,9 @@ export function previewCsv(
   const validateRow =
     type === 'import'
       ? validateImportRow
-      : validateUpdateRow;
+      : type === 'update'
+        ? validateUpdateRow
+        : validateDeleteRow;
 
   const validRows: ParsedRow[] = [];
   const errorRows: ParsedRow[] = [];
@@ -181,12 +200,14 @@ export function previewCsv(
 
 export function generateErrorCsv(
   errorRows: ParsedRow[],
-  type: 'import' | 'update'
+  type: 'import' | 'update' | 'delete'
 ): string {
   const headers =
     type === 'import'
       ? [...IMPORT_HEADERS, 'エラー内容']
-      : [...UPDATE_HEADERS, 'エラー内容'];
+      : type === 'update'
+        ? [...UPDATE_HEADERS, 'エラー内容']
+        : [...DELETE_HEADERS, 'エラー内容'];
 
   const data = errorRows.map((row) => {
     const errorMessage = row.errors.map((e) => `${e.field}: ${e.message}`).join('; ');
