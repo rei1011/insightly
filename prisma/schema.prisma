@@ -44,3 +44,19 @@ model Salary {
 
   @@map("salary")
 }
+
+model BulkJob {
+  id            String   @id @default(uuid())
+  type          String
+  status        String   @default("pending")
+  totalRows     Int      @map("total_rows")
+  processedRows Int      @default(0) @map("processed_rows")
+  successRows   Int      @default(0) @map("success_rows")
+  failedRows    Int      @default(0) @map("failed_rows")
+  inputData     String   @map("input_data") @db.Text
+  errorCsv      String?  @map("error_csv") @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("bulk_job")
+}
