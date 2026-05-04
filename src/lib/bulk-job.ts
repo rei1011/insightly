@@ -4,7 +4,7 @@ import { generateErrorCsv, type ParsedRow } from '@/lib/csv';
 
 const PROGRESS_UPDATE_INTERVAL = 50;
 
-type BulkJobType = 'import';
+type BulkJobType = 'import' | 'update';
 
 export async function createBulkJob(
   type: BulkJobType,
@@ -34,10 +34,15 @@ export async function processBulkJob(jobId: string) {
   let failedRows = 0;
   const errorRows: ParsedRow[] = [];
 
+  const processor =
+    job.type === 'import'
+      ? processImportRow
+      : processUpdateRow;
+
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     try {
-      await processImportRow(row);
+      await processor(row);
       successRows++;
     } catch (error) {
       failedRows++;
@@ -83,6 +88,35 @@ async function processImportRow(row: ParsedRow) {
   const occupationId = await resolveOccupationId(undefined, data['職種名'].trim());
 
   await prisma.salary.create({
+    data: {
+      companyId,
+      occupationId,
+      age: Number(data['年齢']),
+      grade: data['グレード']?.trim() || null,
+      overtimeHours: data['残業時間']?.trim() ? Number(data['残業時間']) : null,
+      annualSalary: Number(data['年収']),
+      baseSalary: Number(data['ベース給与']),
+      bonus: data['賞与']?.trim() ? Number(data['賞与']) : null,
+      rsu: data['RSU']?.trim() ? Number(data['RSU']) : null,
+      stockOptions: data['ストックオプション']?.trim() ? Number(data['ストックオプション']) : null,
+    },
+  });
+}
+
+async function processUpdateRow(row: ParsedRow) {
+  const data = row.data;
+  const id = data['id'].trim();
+
+  const existing = await prisma.salary.findUnique({ where: { id } });
+  if (!existing) {
+    throw new Error(`id「${id}」のデータが見つかりません`);
+  }
+
+  const companyId = await resolveCompanyId(undefined, data['会社名'].trim());
+  const occupationId = await resolveOccupationId(undefined, data['職種名'].trim());
+
+  await prisma.salary.update({
+    where: { id },
     data: {
       companyId,
       occupationId,

@@ -6,11 +6,11 @@ import type { ParsedRow } from '@/lib/csv';
 export async function POST(request: Request) {
   const body = await request.json();
   const { type, validRows } = body as {
-    type: 'import';
+    type: 'import' | 'update';
     validRows: ParsedRow[];
   };
 
-  if (!type || !['import'].includes(type)) {
+  if (!type || !['import', 'update'].includes(type)) {
     return Response.json({ error: '操作タイプが不正です' }, { status: 400 });
   }
 
