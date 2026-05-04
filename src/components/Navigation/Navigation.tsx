@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const NAV_LINKS = [
   { href: "/", label: "報酬一覧" },
   { href: "/ranking", label: "年収ランキング" },
+  { href: "/bulk", label: "一括操作" },
 ];
 
 export function Navigation() {
