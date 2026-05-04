@@ -132,6 +132,26 @@ async function processImport(jobId: string, rows: Record<string, string>[]) {
   });
 }
 
+async function processUpdate(jobId: string, rows: Record<string, string>[]) {
+  const companyMap = await buildCompanyMap(rows.map((r) => r['会社名'].trim()));
+  const occupationMap = await buildOccupationMap(rows.map((r) => r['職種名'].trim()));
+
+  await processBulkRows(jobId, rows, async (row) => {
+    const id = row['id'].trim();
+    const existing = await prisma.salary.findUnique({ where: { id } });
+    if (!existing) {
+      throw new Error(`id: ${id} のデータが見つかりません`);
+    }
+
+    const companyId = companyMap.get(row['会社名'].trim())!;
+    const occupationId = occupationMap.get(row['職種名'].trim())!;
+    await prisma.salary.update({
+      where: { id },
+      data: buildSalaryData(row, companyId, occupationId),
+    });
+  });
+}
+
 export async function executeBulkJob(jobId: string) {
   const job = await prisma.bulkJob.update({
     where: { id: jobId },
@@ -139,9 +159,14 @@ export async function executeBulkJob(jobId: string) {
   });
 
   const rows: Record<string, string>[] = JSON.parse(job.inputData);
+  const type = job.type as BulkOperationType;
 
   try {
-    await processImport(jobId, rows);
+    if (type === 'import') {
+      await processImport(jobId, rows);
+    } else if (type === 'update') {
+      await processUpdate(jobId, rows);
+    }
   } catch (error) {
     await prisma.bulkJob.update({
       where: { id: jobId },

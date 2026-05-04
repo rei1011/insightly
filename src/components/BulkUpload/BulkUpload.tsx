@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-type BulkOperationType = 'import' | 'export';
+type BulkOperationType = 'import' | 'update' | 'export';
 
 type PreviewError = {
   row: number;
@@ -38,11 +38,13 @@ type Step = 'upload' | 'preview' | 'progress' | 'result';
 
 const TAB_LABELS: { type: BulkOperationType; label: string }[] = [
   { type: 'import', label: '一括取り込み' },
+  { type: 'update', label: '一括編集' },
   { type: 'export', label: 'エクスポート' },
 ];
 
 const TEMPLATE_FILES: Record<string, string> = {
   import: '/templates/salary-import.csv',
+  update: '/templates/salary-update.csv',
 };
 
 const inputClass =
@@ -216,7 +218,8 @@ export function BulkUpload() {
     setExporting(false);
   };
 
-  const operationLabel = '取り込み';
+  const operationLabel =
+    activeTab === 'import' ? '取り込み' : '編集';
 
   return (
     <div>

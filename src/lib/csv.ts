@@ -1,11 +1,13 @@
 import Papa from 'papaparse';
 
-export type BulkOperationType = 'import';
+export type BulkOperationType = 'import' | 'update';
 
 const IMPORT_HEADERS = [
   '会社名', '職種名', '年齢', 'グレード', '残業時間',
   '年収', 'ベース給与', '賞与', 'RSU', 'ストックオプション',
 ] as const;
+
+const UPDATE_HEADERS = ['id', ...IMPORT_HEADERS] as const;
 
 export type CsvRowError = {
   row: number;
@@ -43,9 +45,18 @@ export function validateHeaders(
     if (missing.length > 0) {
       return `必須ヘッダーが不足しています: ${missing.join(', ')}`;
     }
+  } else if (type === 'update') {
+    const expected = UPDATE_HEADERS;
+    const missing = expected.filter((h) => !headers.includes(h));
+    if (missing.length > 0) {
+      return `必須ヘッダーが不足しています: ${missing.join(', ')}`;
+    }
   }
   return null;
 }
+
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function parseNumber(value: string | undefined): number | undefined {
   if (value === undefined || value === '') return undefined;
@@ -56,9 +67,18 @@ function parseNumber(value: string | undefined): number | undefined {
 export function validateRow(
   row: Record<string, string>,
   rowNumber: number,
-  _type: BulkOperationType,
+  type: BulkOperationType,
 ): CsvRowError[] {
   const errors: CsvRowError[] = [];
+
+  if (type === 'update') {
+    const id = row['id']?.trim();
+    if (!id) {
+      errors.push({ row: rowNumber, field: 'id', message: 'idは必須です' });
+    } else if (!UUID_REGEX.test(id)) {
+      errors.push({ row: rowNumber, field: 'id', message: 'idの形式が不正です（UUID形式で入力してください）' });
+    }
+  }
 
   const companyName = row['会社名']?.trim();
   if (!companyName) {
@@ -169,7 +189,7 @@ export function generateErrorCsv(
 }
 
 const MAX_ROWS = 10000;
-const VALID_TYPES: BulkOperationType[] = ['import'];
+const VALID_TYPES: BulkOperationType[] = ['import', 'update'];
 
 export type BulkRequestValidation =
   | { success: true; type: BulkOperationType; result: CsvParseResult }
@@ -188,7 +208,7 @@ export async function validateBulkRequest(
   if (!type || !VALID_TYPES.includes(type as BulkOperationType)) {
     return {
       success: false,
-      error: 'typeは import を指定してください',
+      error: 'typeは import, update のいずれかを指定してください',
       status: 400,
     };
   }
