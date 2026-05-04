@@ -4,7 +4,7 @@ import { generateErrorCsv, type ParsedRow } from '@/lib/csv';
 
 const PROGRESS_UPDATE_INTERVAL = 50;
 
-type BulkJobType = 'import' | 'update';
+type BulkJobType = 'import' | 'update' | 'delete';
 
 export async function createBulkJob(
   type: BulkJobType,
@@ -37,7 +37,9 @@ export async function processBulkJob(jobId: string) {
   const processor =
     job.type === 'import'
       ? processImportRow
-      : processUpdateRow;
+      : job.type === 'update'
+        ? processUpdateRow
+        : processDeleteRow;
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
@@ -130,4 +132,13 @@ async function processUpdateRow(row: ParsedRow) {
       stockOptions: data['ストックオプション']?.trim() ? Number(data['ストックオプション']) : null,
     },
   });
+}
+
+async function processDeleteRow(row: ParsedRow) {
+  const id = row.data['id'].trim();
+
+  const existing = await prisma.salary.findUnique({ where: { id } });
+  if (!existing) return; // 冪等性: 存在しないidはスキップ
+
+  await prisma.salary.delete({ where: { id } });
 }

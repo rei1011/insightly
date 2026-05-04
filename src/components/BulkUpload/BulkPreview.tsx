@@ -3,7 +3,7 @@
 import type { ParsedRow } from '@/lib/csv';
 
 type BulkPreviewProps = {
-  type: 'import' | 'update';
+  type: 'import' | 'update' | 'delete';
   validRows: ParsedRow[];
   errorRows: ParsedRow[];
   onExecute: () => void;
@@ -24,9 +24,11 @@ export function BulkPreview({
   executing,
 }: BulkPreviewProps) {
   const displayHeaders =
-    type === 'update'
-      ? ['id', '会社名', '職種名', '年齢', 'グレード', '残業時間', '年収', 'ベース給与', '賞与', 'RSU', 'ストックオプション']
-      : ['会社名', '職種名', '年齢', 'グレード', '残業時間', '年収', 'ベース給与', '賞与', 'RSU', 'ストックオプション'];
+    type === 'delete'
+      ? ['id']
+      : type === 'update'
+        ? ['id', '会社名', '職種名', '年齢', 'グレード', '残業時間', '年収', 'ベース給与', '賞与', 'RSU', 'ストックオプション']
+        : ['会社名', '職種名', '年齢', 'グレード', '残業時間', '年収', 'ベース給与', '賞与', 'RSU', 'ストックオプション'];
 
   return (
     <div className="space-y-6">

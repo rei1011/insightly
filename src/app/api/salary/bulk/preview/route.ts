@@ -9,12 +9,12 @@ export async function POST(request: Request) {
     return Response.json({ error: 'ファイルが指定されていません' }, { status: 400 });
   }
 
-  if (!type || !['import', 'update'].includes(type)) {
+  if (!type || !['import', 'update', 'delete'].includes(type)) {
     return Response.json({ error: '操作タイプが不正です' }, { status: 400 });
   }
 
   const csvText = await file.text();
-  const result = previewCsv(csvText, type as 'import' | 'update');
+  const result = previewCsv(csvText, type as 'import' | 'update' | 'delete');
 
   if (result.headerError) {
     return Response.json({ error: result.headerError }, { status: 400 });
